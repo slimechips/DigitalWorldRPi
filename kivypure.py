@@ -7,6 +7,71 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+from libdw import pyrebase
+import datetime
+import json 
+url = "https://digitalworldf08g2.firebaseio.com/"
+apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
+
+config = {
+    "apiKey": apikey,
+    "databaseURL": url,
+}
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
+
+x=db.child('active_orders').child('western_stall').child('order_000001').get()
+
+    
+class OrderHandler():
+    def __init__(self,database,store_name):
+        self.db= database
+        self.store=store_name
+        self.time_stamp= lambda: str(datetime.datetime.now()).split('.')[0]
+    def update(self, status,order_number):
+        completed={}
+        if status=='ready':
+            self.db.child('active_orders').child(self.store).child('order_000001').update({"status":status})
+            self.db.child('active_orders').child(self.store).child('order_000001').update({"time_of_order_completion":self.time_stamp()}) 
+
+        elif status=='collected':
+            self.active=self.db.child('active_orders').child('western_stall').child(order_number).get()
+            self.complete=self.db.child('completed_orders').child('western_stall').child(order_number)
+            for entry  in self.active.each():
+                print(entry.key(),entry.val())
+                if entry.key()=='status':
+                    completed['status']='collected'
+                elif entry.key()=='time_of_order_collection':
+                    completed['time_of_order_collection']=self.time_stamp()
+                else:
+                    completed[entry.key()]=entry.val()
+            self.complete.set(completed)
+            self.active=self.db.child('active_orders').child(self.store).child(order_number).remove()
+            return completed
+    def get_all_order(self):
+        orders=[]
+        stores=self.db.child('active_orders').child(self.store).get()
+        for entry in stores.each():
+            orders.append(entry.key())
+        return orders
+
+dbhandler= OrderHandler(db,'western_stall')
+
+print(dbhandler.get_all_order())
+
+
+
+
+
+
+
+
+
+
+
+
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
@@ -29,6 +94,22 @@ ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
         shadow=True, startangle=90)
 ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 plt2.savefig('pie.png')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Builder.load_string("""
 <loginScreen>:
@@ -231,7 +312,7 @@ Builder.load_string("""
         Button:
             size_hint: 0.2,0.2
             pos_hint: {"center_y":0.5, "left":0}
-            on_press: app.root.current = "login"
+            on_press: app.root.current = "screen_5"
             Image:
                 source: "button1.png"
                 keep_ratio: False
@@ -333,7 +414,7 @@ Builder.load_string("""
         Button:
             size_hint: 0.2,0.2
             pos_hint: {"y":-2, "left":0}
-            on_press: app.root.current = "login"
+            on_press: app.root.current = "screen_5"
             Image:
                 source: "button1.png"
                 keep_ratio: False
@@ -436,10 +517,12 @@ Builder.load_string("""
             source: 'backnew.png'
             pos: 0,0
             size: self.width,self.height
+    BoxLayout:    
+        orientation: "vertical"
         ScrollView:
             
             GridLayout:
-                pos_hint: {"center_x":0.5,"center_y":0.9}
+                pos_hint: {"center_x":0.5,"center_y":0.5}
                 padding: 20
                 spacing: 10
                 cols: 1
@@ -447,19 +530,43 @@ Builder.load_string("""
                 size_hint_y:  None
                 # set the height of the layout to the combined height of the children
                 height: self.minimum_height
-                               
-                
+            
                 Label:
                     # cause the Layout's height is calculated by the children's height
                     # we have to disable size_hint_y and manually provide height
-                    size_hint_y: None
-                    height: '29sp'
-                    hint_text: 'Firstname'
+                    text: 'Firstname'
                 Label:
-                    hint_text: 'Surname'
-                    size_hint_y: None
-                    height: '29sp'
-    
+                    text: 'Surname'
+                Label:
+                    # cause the Layout's height is calculated by the children's height
+                    # we have to disable size_hint_y and manually provide height
+                    text: 'Firstname'
+                Label:
+                    text: 'Surname'
+                Label:
+                    # cause the Layout's height is calculated by the children's height
+                    # we have to disable size_hint_y and manually provide height
+                    text: 'Firstname'
+                Label:
+                    text: 'Surname'
+                Label:
+                    # cause the Layout's height is calculated by the children's height
+                    # we have to disable size_hint_y and manually provide height
+                    text: 'Firstname'
+                Label:
+                    text: 'Surname'
+                Label:
+                    # cause the Layout's height is calculated by the children's height
+                    # we have to disable size_hint_y and manually provide height
+                    text: 'Firstname'
+                Label:
+                    text: 'Surname'
+                Label:
+                    # cause the Layout's height is calculated by the children's height
+                    # we have to disable size_hint_y and manually provide height
+                    text: 'Firstname'
+                Label:
+                    text: 'Surname'
                     """)
 class loginScreen(Screen):
     pass
@@ -473,7 +580,8 @@ class dashScreen(Screen):
 class menuScreen(Screen):
     pass
 class receiveScreen(Screen):
-    pass
+    def update(self,w):
+        self.add_widget(w)
 
 sm=ScreenManager()
 sm.add_widget(loginScreen())
@@ -481,6 +589,17 @@ sm.add_widget(fourScreen())
 sm.add_widget(fiveScreen())
 sm.add_widget(dashScreen())
 sm.add_widget((menuScreen()))
+
+
+lis=dbhandler.get_all_order()
+
+a=receiveScreen()
+
+for i in range(len(lis)):
+    w=Label(text=lis[i],pos_hint= {"center_x":0.1,"center_y":0.9-(i)/(len(lis))})
+    a.update(w)
+
+sm.add_widget(a)
 
 class TutorialApp(App):
     def build(self):
