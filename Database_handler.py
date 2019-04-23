@@ -2,6 +2,17 @@ from libdw import pyrebase
 import datetime
 import json 
 
+url = "https://digitalworldf08g2.firebaseio.com/"
+apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
+
+config = {
+    "apiKey": apikey,
+    "databaseURL": url,
+}
+
+
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
 
 x=db.child('active_orders').child('western_stall').child('order_000001').get()
 
@@ -23,7 +34,7 @@ class OrderHandler():
         elif status=='collected':
             self.active=self.db.child('active_orders').child('western_stall').child(order_number).get()
             self.complete=self.db.child('completed_orders').child('western_stall').child(order_number)
-            for entry  in self.active.each():
+            for entry in self.active.each():
                 print(entry.key(),entry.val())
                 if entry.key()=='status':
                     completed['status']='collected'
@@ -43,5 +54,6 @@ class OrderHandler():
             print(type(entry.val()))
         return self.orders
 
-dbhandler= OrderHandler(db,'western_stall')
-dbhandler.update('collected','234300604001')
+dbhandler= OrderHandler(db,'japanese_stall')
+#dbhandler.update('collected','234300604001')
+print(dbhandler.get_all_order())

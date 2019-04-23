@@ -1,9 +1,18 @@
 from libdw import pyrebase
-
-
 import urllib
 from PIL import Image 
 
+
+url = "https://digitalworldf08g2.firebaseio.com/"
+apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
+
+config = {
+    "apiKey": apikey,
+    "databaseURL": url,
+}
+
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
 
 class menuhandler():
 	def __init__ (self,db,store):
@@ -19,7 +28,6 @@ class menuhandler():
 		self.db.child('menu').child(self.store).child(food_name).set(food_details)
 
 	def upload_file(self,filename):
-
 	    my_file = open(filename, "rb")
 	    my_bytes = my_file.read()
 	    my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}".format(self.store,filename)
@@ -41,7 +49,7 @@ class menuhandler():
 			print(items.key(),items.val())
 			r_msg[items.key()]= items.val()
 		return r_msg
-	def get_photo(self, items):
+	def get_photo(self, items): #items is filename
 		my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}?alt=media".format(self.store,items)
 		print(my_url)
 		try:
@@ -52,3 +60,21 @@ class menuhandler():
 			print(message["error"]["message"])
 		else:
 			print(loader)
+
+detail={                            # to be set by menu maker
+	'EST_waiting_time':10,
+	'price':5.50
+}
+foodname="Chicken with Rice"       #also set by menu maker
+menu= menuhandler(db,'Indian')  
+menu.new_item('ricc_with_noodle2.jpg',foodname,detail ) 
+print("about to give menu")
+a=menu.get_menu()
+print(a)
+menu.get_photo("ricc_with_noodle2.jpg")
+
+#imageblob.upload_from_filename(imagesPath)
+
+#for new item, need dynamic filename, saves it, and uploads that one 
+
+#widgets that ned to be dynamic

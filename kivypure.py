@@ -1,17 +1,30 @@
 from kivy.app import App
+from kivy.uix.behaviors.knspace import knspace
+def change_screen_5(*args):
+    App.get_running_app().root.current = 'screen_5'
 from kivy.uix.button import Button
+from kivy.properties import ObjectProperty
 from kivy.uix.scatter import Scatter
 from kivy.uix.label import Label
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
+from kivy.uix.image import Image
+from kivy.graphics.instructions import Canvas
+from kivy.graphics import *
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
+from kivy.clock import Clock
 import matplotlib.pyplot as plt
-import numpy as np
-
-
 from libdw import pyrebase
-import datetime
-import json 
+import numpy as np
+from functools import partial 
+#from PIL import Image2 
+
+
+
 url = "https://digitalworldf08g2.firebaseio.com/"
 apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
 
@@ -19,56 +32,47 @@ config = {
     "apiKey": apikey,
     "databaseURL": url,
 }
+
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
-x=db.child('active_orders').child('western_stall').child('order_000001').get()
+from Database_handler import OrderHandler
+from menu_handler import menuhandler
+from trendline_handler import trend_handler
 
-    
-class OrderHandler():
-    def __init__(self,database,store_name):
-        self.db= database
-        self.store=store_name
-        self.time_stamp= lambda: str(datetime.datetime.now()).split('.')[0]
-    def update(self, status,order_number):
-        completed={}
-        if status=='ready':
-            self.db.child('active_orders').child(self.store).child('order_000001').update({"status":status})
-            self.db.child('active_orders').child(self.store).child('order_000001').update({"time_of_order_completion":self.time_stamp()}) 
 
-        elif status=='collected':
-            self.active=self.db.child('active_orders').child('western_stall').child(order_number).get()
-            self.complete=self.db.child('completed_orders').child('western_stall').child(order_number)
-            for entry  in self.active.each():
-                print(entry.key(),entry.val())
-                if entry.key()=='status':
-                    completed['status']='collected'
-                elif entry.key()=='time_of_order_collection':
-                    completed['time_of_order_collection']=self.time_stamp()
-                else:
-                    completed[entry.key()]=entry.val()
-            self.complete.set(completed)
-            self.active=self.db.child('active_orders').child(self.store).child(order_number).remove()
-            return completed
-    def get_all_order(self):
-        orders=[]
-        stores=self.db.child('active_orders').child(self.store).get()
-        for entry in stores.each():
-            orders.append(entry.key())
-        return orders
+####This is the database handler
 
-dbhandler= OrderHandler(db,'western_stall')
-
+dbhandler= OrderHandler(db,'japanese_stall')
 print(dbhandler.get_all_order())
 
+###
 
 
+#This is the menu handle
+
+detail={                            # to be set by menu maker
+	'EST_waiting_time':10,
+	'price':5.50
+}
+foodname="Chicken with Rice"       #also set by menu maker
+menu= menuhandler(db,'Indian')  
+menu.new_item('ricc_with_noodle2.jpg',foodname,detail ) 
+print("about to give menu")
+a=menu.get_menu()
+menu.get_photo("ricc_with_noodle2.jpg")
+#end of menu handler
 
 
+#trendline handler
+trend=trend_handler(db)
+sales=trend.get_sales()
+print(sales)
+popular=trend.get_popular()
+print("printing trend")
+print(popular)
 
-
-
-
+#end of trendlline
 
 
 
@@ -98,19 +102,6 @@ plt2.savefig('pie.png')
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 Builder.load_string("""
 <loginScreen>:
                 
@@ -132,6 +123,7 @@ Builder.load_string("""
             #on_enter: app.root.current = "main_screen"
             write_tab: False
             multiline: False
+
             #on_text_validate: app.root.current = "main_screen" 
             height: 30
             width: 160
@@ -183,27 +175,17 @@ Builder.load_string("""
             size: self.width,self.height
     FloatLayout:  
         Button:
-            size_hint: 0.2,0.2
-            pos_hint: {"center_y":0.5, "right":0.25}
+            size_hint: 0.14,0.15
+            pos_hint: {"center_y":0.5, "right":0.17}
             on_press: app.root.current = "login"
             Image:
-                source: "button1.png"
+                source: "button11.png"
                 keep_ratio: False
                 center_x: self.parent.center_x
                 center_y: self.parent.center_y
                 size: self.parent.size
                 allow_stretch: True
-        Button:
-            size_hint: 0.2,0.2
-            pos_hint: {"center_y":0.5, "right":0.95}
-            on_press: app.root.current = "screen_5"
-            Image:
-                source: "button2.png"
-                keep_ratio: False
-                center_x: self.parent.center_x
-                center_y: self.parent.center_y
-                size: self.parent.size
-                allow_stretch: True
+        
         TextInput:
             size_hint: None, None
             text:"Enter registration email"
@@ -251,7 +233,17 @@ Builder.load_string("""
             pos: 0,0
             size: self.width,self.height
     FloatLayout:
-        orientation: "horizontal"
+        Button:
+            size_hint: 0.14,0.15
+            pos_hint: {"center_y":0.5, "right":0.17}
+            on_press: app.root.current = "login"
+            Image:
+                source: "button11.png"
+                keep_ratio: False
+                center_x: self.parent.center_x-1
+                center_y: self.parent.center_y
+                size: self.parent.size
+                allow_stretch: True
 
         Label:
             text: "Options"
@@ -300,7 +292,6 @@ Builder.load_string("""
 <dashScreen>:             
     name: 'dash'
     canvas:
-        
         Color:
             rgb: 1, 1, 1
         Rectangle:
@@ -310,28 +301,17 @@ Builder.load_string("""
     
     FloatLayout:
         Button:
-            size_hint: 0.2,0.2
-            pos_hint: {"center_y":0.5, "left":0}
+            background_color: 0, 0, 0, 0
+            size_hint: 0.14,0.2
+            pos_hint: {"center_y":0.468, "right":0.16}
             on_press: app.root.current = "screen_5"
             Image:
-                source: "button1.png"
+                source: "dashbutton1.png"
                 keep_ratio: False
                 center_x: self.parent.center_x
                 center_y: self.parent.center_y
                 size: self.parent.size
                 allow_stretch: True 
-        Button:
-            size_hint: 0.2,0.2
-            pos_hint: {"center_y":0.5, "right":1}
-            on_press: app.root.current = "login"
-            Image:
-                source: "button2.png"
-                keep_ratio: False
-                center_x: self.parent.center_x
-                center_y: self.parent.center_y
-                size: self.parent.size
-                allow_stretch: True 
-        
         Label:
             size_hint: None, None
             text:"Top Selling Dishes"
@@ -341,7 +321,7 @@ Builder.load_string("""
             #on_text_validate: app.root.current = "main_screen" 
             height: 30
             width: 160
-            pos_hint: {"center_x":0.15,"center_y":0.87}
+            pos_hint: {"center_x":0.25,"center_y":0.87}
         Label:
             size_hint: None, None
             text:"Sales Performance over time"
@@ -351,10 +331,10 @@ Builder.load_string("""
             #on_text_validate: app.root.current = "main_screen" 
             height: 30
             width: 160
-            pos_hint: {"center_x":0.65,"center_y":0.87}
+            pos_hint: {"center_x":0.75,"center_y":0.87}
         Image:
             source: "foo.png"
-            pos_hint: {"center_x":0.72,"center_y":0.65}
+            pos_hint: {"center_x":0.66,"center_y":0.65}
             size_hint: (.4,.4)
             
         Label:
@@ -365,7 +345,7 @@ Builder.load_string("""
             multiline: False
             height: 30
             width: 160
-            pos_hint: {"center_x":0.15,"center_y":0.37}
+            pos_hint: {"center_x":0.25,"center_y":0.37}
         Label:
             size_hint: None, None
             text:""
@@ -389,7 +369,7 @@ Builder.load_string("""
             #on_text_validate: app.root.current = "main_screen" 
             height: 30
             width: 160
-            pos_hint: {"center_x":0.65,"center_y":0.4}
+            pos_hint: {"center_x":0.75,"center_y":0.4}
 <menuScreen>:
     name: 'menu'
     canvas:
@@ -405,26 +385,27 @@ Builder.load_string("""
             size: self.width,self.height/3.
           
     BoxLayout:
+        id: box
         orientation: "vertical"
-        
-                
-
         Label:
             text:"Menu"
         Button:
-            size_hint: 0.2,0.2
-            pos_hint: {"y":-2, "left":0}
+            background_color: 0, 0, 0, 0
+            size_hint: 0.14,0.32
+            pos_hint: {"center_y":0.5, "right":0.14}
             on_press: app.root.current = "screen_5"
             Image:
-                source: "button1.png"
+                source: "button11.png"
                 keep_ratio: False
                 center_x: self.parent.center_x
                 center_y: self.parent.center_y
                 size: self.parent.size
                 allow_stretch: True  
         ScrollView:
+            id: scroll
             
             GridLayout:
+                id: grid
                 pos_hint: {"center_x":0.5,"center_y":0.9}
                 padding: 20
                 spacing: 10
@@ -434,7 +415,6 @@ Builder.load_string("""
                 # set the height of the layout to the combined height of the children
                 height: self.minimum_height
                                
-                
                 Label:
                     # cause the Layout's height is calculated by the children's height
                     # we have to disable size_hint_y and manually provide height
@@ -445,128 +425,38 @@ Builder.load_string("""
                     hint_text: 'Surname'
                     size_hint_y: None
                     height: '29sp'
-                TextInput:
-                    hint_text: 'Email'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    hint_text: 'Phone'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    size_hint_y: None
-                    height: '29sp'
-                    hint_text: 'Firstname'
-                TextInput:
-                    hint_text: 'Surname'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    hint_text: 'Email'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    hint_text: 'Phone'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    size_hint_y: None
-                    height: '29sp'
-                    hint_text: 'Firstname'
-                TextInput:
-                    hint_text: 'Surname'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    hint_text: 'Email'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    hint_text: 'Phone'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    size_hint_y: None
-                    height: '29sp'
-                    hint_text: 'Firstname'
-                TextInput:
-                    hint_text: 'Surname'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    hint_text: 'Email'
-                    size_hint_y: None
-                    height: '29sp'
-                TextInput:
-                    hint_text: 'Phone'
-                    size_hint_y: None
-                    height: '29sp'
-                
+                    
 <receiveScreen>:
+    rect_id: 'rect_id'
     name: 'receive'
     canvas:
         Color:
             rgb: 1, 1, 1
         Rectangle:
+            id: rect_id
             source: 'backnew.png'
             pos: 0,0
             size: self.width,self.height
-    BoxLayout:    
+    BoxLayout:
+        id: box
         orientation: "vertical"
-        ScrollView:
-            
-            GridLayout:
-                pos_hint: {"center_x":0.5,"center_y":0.5}
-                padding: 20
-                spacing: 10
-                cols: 1
-                # set GridLayout to be unrestricted vertically
-                size_hint_y:  None
-                # set the height of the layout to the combined height of the children
-                height: self.minimum_height
-            
-                Label:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    text: 'Firstname'
-                Label:
-                    text: 'Surname'
-                Label:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    text: 'Firstname'
-                Label:
-                    text: 'Surname'
-                Label:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    text: 'Firstname'
-                Label:
-                    text: 'Surname'
-                Label:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    text: 'Firstname'
-                Label:
-                    text: 'Surname'
-                Label:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    text: 'Firstname'
-                Label:
-                    text: 'Surname'
-                Label:
-                    # cause the Layout's height is calculated by the children's height
-                    # we have to disable size_hint_y and manually provide height
-                    text: 'Firstname'
-                Label:
-                    text: 'Surname'
+        Label:
+            text:"Menu"
+        Button:
+            background_color: 0, 0, 0, 0
+            size_hint: 0.14,0.32
+            pos_hint: {"center_y":0.5, "right":0.14}
+            on_press: app.root.current = "screen_5"
+            Image:
+                source: "button11.png"
+                keep_ratio: False
+                center_x: self.parent.center_x
+                center_y: self.parent.center_y
+                size: self.parent.size
+                allow_stretch: True  
+        
+    
+    
                     """)
 class loginScreen(Screen):
     pass
@@ -576,12 +466,23 @@ class fourScreen(Screen):
 class fiveScreen(Screen):
     pass
 class dashScreen(Screen):
-    pass
+    def start(self):
+        Clock.schedule_interval(self.change, 10)
+        
 class menuScreen(Screen):
-    pass
-class receiveScreen(Screen):
+    def start(self):
+        Clock.schedule_interval(self.change, 10)
     def update(self,w):
         self.add_widget(w)
+
+        
+        
+class receiveScreen(Screen):
+    rect_id= ObjectProperty(None)
+    def update(self,w):
+        self.add_widget(w)
+        (self.rect_id)
+        
 
 sm=ScreenManager()
 sm.add_widget(loginScreen())
@@ -590,18 +491,68 @@ sm.add_widget(fiveScreen())
 sm.add_widget(dashScreen())
 sm.add_widget((menuScreen()))
 
-
-lis=dbhandler.get_all_order()
-
 a=receiveScreen()
 
-for i in range(len(lis)):
-    w=Label(text=lis[i],pos_hint= {"center_x":0.1,"center_y":0.9-(i)/(len(lis))})
-    a.update(w)
+#b=BoxLayout()
+"""
+ Button:
+        size_hint: 0.14,0.15
+        pos_hint: {"center_y":0.5, "right":0.17}
+        on_press: app.root.current = "login"
+        Image:
+            source: "button11.png"
+            keep_ratio: False
+            center_x: self.parent.center_x-1
+            center_y: self.parent.center_y
+            size: self.parent.size
+            allow_stretch: True
+"""
 
+
+#a.ids[]
+g=GridLayout(padding=20,spacing=50,cols=1,size_hint_y=None)
+#commented out this property: ,height=GridLayout().minimum_height
+#add labels for each order
+l1=Label(text="First piece of text")
+#l2=Label(text="Second Piece of text")
+b=a.ids["box"]
+
+s=ScrollView(id='scroll')
+
+g.add_widget(l1)
+#but=Button(size_hint=(0.14,0.15),pos_hint={"center_y":0.5, "right":0.17},on_press=change_screen_5)
+#g.add_widget(Image(source="button11.png",keep_ratio=False,center_x=but.center_x,center_y=but.center_y,size=but.size))
+#g.add_widget(but)
+#g.add_widget(l2)
+
+
+lis=dbhandler.get_all_order()
+keys1=list(lis.keys())
+for i in range(1,len(list(keys1))):
+    dic=lis[keys1[i]]
+    keys2=list(dic.keys())
+    vals2=list(dic.values())
+    
+    g.add_widget(Label(text="Order number: "+keys1[i]))
+    readyfn=partial(dbhandler.update,"ready",keys1[i])
+    cookingfn=partial(dbhandler.update,"cooking",keys1[i])
+    collectedfn=partial(dbhandler.update,"collected",keys1[i])
+    but1=Button(text="ready",on_press=readyfn)
+    g.add_widget(but1)
+    but2=Button(text="cooking",on_press=cookingfn)
+    g.add_widget(but2)
+    but3=Button(text="collected",on_press=collectedfn)
+    g.add_widget(but3)
+    for j in range(len(keys2)):
+        g.add_widget(Label(text=str(keys2[j])+":"+str(vals2[j]),halign="left"))
+    
+
+s.add_widget(g)
+b.add_widget(s)
 sm.add_widget(a)
 
 class TutorialApp(App):
+    
     def build(self):
         
         return sm

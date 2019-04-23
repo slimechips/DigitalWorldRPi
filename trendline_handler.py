@@ -1,6 +1,19 @@
 from libdw import pyrebase
 import datetime
  
+
+
+url = "https://digitalworldf08g2.firebaseio.com/"
+apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
+
+config = {
+    "apiKey": apikey,
+    "databaseURL": url,
+}
+
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
+
 class trend_handler:
 	def __init__(self, db):
 		self.db=db
@@ -27,3 +40,10 @@ class trend_handler:
 			price = db.child('menu').child('western_stall').child(items).child('price').get()#the price of the item
 			sale2.append([date_time_obj,price.val()])
 		return sale2# return 2d array 
+
+trend=trend_handler(db)
+sales=trend.get_sales()
+print(sales)
+popular=trend.get_popular()
+print("printing trend")
+print(popular)
