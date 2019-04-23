@@ -3,7 +3,7 @@ import numpy as np
 import datetime
 
 import os
-url= "https://digitalworldf08gg2.firebaseio.com/"
+url = "https://digitalworldf08g2.firebaseio.com/"
 apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
 
 config= {
@@ -24,9 +24,10 @@ class pred_time():
         time_data,queue= self.get_data()
         self.regressor.fit(time_data,queue)
     def time_difference(self,time1, time2):
-        time1= time_cal(time1)
-        time2= time_cal(time2)
+        time1= self.time_cal(time1)
+        time2= self.time_cal(time2)
         time_difference= abs(time1-time2)
+        time_difference= abs(time_difference.total_seconds())/60
         return time_difference
     def get_data(self):
         time_data=[]
@@ -36,16 +37,20 @@ class pred_time():
             info=item.val() 
             time1=info['time_of_order']
             time2= info['time_of_order_completion']
+            print(time1, time2)
             time_diff= self.time_difference(time1,time2)
-            time_data.append([time_difference])
+            time_data.append([time_diff])
             queue.append([info['orders_in_queue']]) 
         return time_data, queue
     def pred (self,orders):
-        orders=[]
+        order_active=[]
         stores=self.db.child('active_orders').child(self.store).get()
         for entry in stores.each():
-            orders.append(entry.key())
+            order_active.append(entry.key())
         #.reshape(t_time.shape[0],-1)
-        pred_time=self.regressor.pred([[len(orders)-1]])
-        self.db.child('active_orders').child(self.store).child(orders).set(pred_time)
+        pred_time=self.regressor.predict([[len(order_active)-1]])
+        self.db.child('active_orders').child(self.store).child(orders).child('estimated_waiting_time').set(pred_time[0,0])
+        print('pred_time')
         return pred_time
+pred=pred_time(db,'western_stall')
+pred.pred(100200604004)
