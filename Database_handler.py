@@ -1,5 +1,9 @@
 from libdw import pyrebase
 import datetime
+import json 
+
+
+x=db.child('active_orders').child('western_stall').child('order_000001').get()
 
     
 class OrderHandler():
@@ -29,11 +33,15 @@ class OrderHandler():
                     completed[entry.key()]=entry.val()
             self.complete.set(completed)
             self.active=self.db.child('active_orders').child(self.store).child(order_number).remove()
+
             return completed
     def get_all_order(self):
-        orders=[]
+        self.orders={}
         stores=self.db.child('active_orders').child(self.store).get()
         for entry in stores.each():
-            orders.append(entry.key())
-        return orders
+            self.orders[entry.key()]= entry.val()
+            print(type(entry.val()))
+        return self.orders
 
+dbhandler= OrderHandler(db,'western_stall')
+dbhandler.update('collected','234300604001')
