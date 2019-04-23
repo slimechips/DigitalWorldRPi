@@ -35,7 +35,8 @@ class OrderHandler():
                     completed['time_of_order_collection']=self.time_stamp()
                 else:
                     completed[entry.key()]=entry.val()
-            self.complete.set(completed)
+            self.complete.set(completed)# push the order up 
+            # remove the order from active  order 
             self.active=self.db.child('active_orders').child(self.store).child(order_number).remove()
 
             return completed
@@ -43,9 +44,12 @@ class OrderHandler():
         self.orders={}
         stores=self.db.child('active_orders').child(self.store).get()
         for entry in stores.each():
-            self.orders[entry.key()]= entry.val()
-            print(type(entry.val()))
+            print(type(entry.key()))
+            if entry.key()[0]!='!':
+                 self.orders[entry.key()]= entry.val()
+
         return self.orders
+
 
 dbhandler= OrderHandler(db,'western_stall')
 dbhandler.update('collected','234300604001')
