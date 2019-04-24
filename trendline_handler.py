@@ -38,7 +38,7 @@ class trend_handler:
 			items = entry.val()['food_item']
 
 			price = db.child('menu').child('western_stall').child(items).child('price').get()#the price of the item
-			sale2.append([date_time_obj,price.val()])
+			sale2.append([[date_time_obj.year,date_time_obj.month,date_time_obj.day],float(price.val()[1:])])
 		return sale2# return 2d array 
 
 trend=trend_handler(db)
