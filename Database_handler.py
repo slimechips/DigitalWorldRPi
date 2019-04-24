@@ -32,8 +32,8 @@ class OrderHandler():
             self.db.child('active_orders').child(self.store).child(order_number).update({"time_of_order_completion":self.time_stamp()}) 
 
         elif status=='collected':
-            self.active=self.db.child('active_orders').child('western_stall').child(order_number).get()
-            self.complete=self.db.child('completed_orders').child('western_stall').child(order_number)
+            self.active=self.db.child('active_orders').child(self.store_name).child(order_number).get()
+            self.complete=self.db.child('completed_orders').child(self.store_name).child(order_number)
             for entry in self.active.each():
                 print(entry.key(),entry.val())
                 if entry.key()=='status':
