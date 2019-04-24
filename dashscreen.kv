@@ -1,0 +1,25 @@
+<dashScreen>:
+                
+    name: 'dash'
+    canvas:
+        
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'dash_clear.png'
+            pos: 0,0
+            size: self.width,self.height
+    
+    FloatLayout:    
+        Label:
+            size_hint: None, None
+            text:"Sales Performance over time"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.1,"center_y":0.9}
+        
+        
