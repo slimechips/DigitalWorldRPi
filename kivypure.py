@@ -21,20 +21,9 @@ import matplotlib.pyplot as plt
 from libdw import pyrebase
 import numpy as np
 from functools import partial 
+import loginhandler
 #from PIL import Image2 
-
-
-
-url = "https://digitalworldf08g2.firebaseio.com/"
-apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
-
-config = {
-    "apiKey": apikey,
-    "databaseURL": url,
-}
-
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
+from config import db
 
 from Database_handler import OrderHandler
 from menu_handler import menuhandler
@@ -98,7 +87,7 @@ plt2.savefig('pie.png')
 Builder.load_string("""
 #:import Window kivy.core.window.Window
 <loginScreen>:
-                
+    id: login_screen
     name: 'login'
     canvas:
         
@@ -108,10 +97,9 @@ Builder.load_string("""
             source: 'login.jpg'
             pos: 0,0
             size: self.width,self.height
-    
     FloatLayout:    
         TextInput:
-            
+            id: username
             size_hint: None, None
             text:""
             hint_text: 'Enter Username'
@@ -124,42 +112,25 @@ Builder.load_string("""
             width: 160
             pos_hint: {"center_x":0.5,"center_y":0.5}
         TextInput:
+            id: password
             size_hint: None, None
             text:""
             hint_text: "Enter Password"
             #on_enter: app.root.current = "main_screen"
             write_tab: False
             multiline: False
+            password: True
             #on_text_validate: app.root.current = "main_screen" 
             height: 30
             width: 160
             pos_hint: {"center_x":0.5,"center_y":0.45}
-        TextInput:
-            size_hint: None, None
-            text:""
-            hint_text: "Re-enter Password"
-            #on_enter: app.root.current = "main_screen"
-            write_tab: False
-            multiline: False
-            #on_text_validate: app.root.current = "main_screen" 
-            height: 30
-            width: 160
-            pos_hint: {"center_x":0.5,"center_y":0.4}
         Button:
             text: "Enter details"
             size_hint: None, None
             height: 30
             width: 120
-            on_press: app.root.current = "screen_5" 
+            on_press: login_screen.login_pressed()
             pos_hint: {"center_x":0.5, "center_y":0.35}
-        Button:
-            text: "Create account"
-            size_hint: None, None
-            height: 30
-            width: 120
-            on_press: app.root.current = "signup" 
-            pos_hint: {"center_x":0.5, "center_y":0.30}
-
 
 <fourScreen>:               
     name: 'signup'
@@ -476,7 +447,7 @@ Builder.load_string("""
                 Widget:
                     
                 Widget:
-<adjustScreen>
+<adjustScreen>:
     name: 'adjust'
     canvas:
         Color:
@@ -563,7 +534,27 @@ Builder.load_string("""
 
 #s=ScrollView(id='scroll')
 class loginScreen(Screen):
-    pass
+    def on_enter(self, *args):
+        super().on_enter(*args)
+        # Set clear the username and password fields
+        self.ids["username"].text = ""
+        self.ids["password"].text = ""
+
+    def login_pressed(self, *args):
+        # Login button pressed, check if credentials are correct
+        username = self.ids["username"].text
+        password = self.ids["password"].text
+        cred_correct = loginhandler.check_credentials(username, password)
+        if cred_correct:
+            # Credentials correct, set current user and change screen
+            self.ids["username"].background_color = [1, 1, 1, 1]
+            self.ids["password"].background_color = [1, 1, 1, 1]
+            loginhandler.cur_stall_user = username
+            self.manager.current = "screen_5"
+        else:
+            # Credentials wrong, set text fields to red
+            self.ids["username"].background_color = [1, 0.3, 0.3, 1]
+            self.ids["password"].background_color = [1, 0.3, 0.3, 1]
 
 class fourScreen(Screen):
     pass
