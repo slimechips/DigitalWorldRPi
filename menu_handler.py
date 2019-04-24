@@ -19,7 +19,7 @@ class menuhandler():
 		self.db=db
 		self.store=store
 	def update_detail(self, food_item, key, value):
-		self.db.child('menu').child(self.store).child(food_item).child(key).update(value)
+		self.db.child('menu').child(self.store).child(food_item).child(key).set(value)
 	def new_item(self,filename,food_name,food_details):
 		items= self.db.child('menu').child(self.store).get()
 		index= len(items.key())
