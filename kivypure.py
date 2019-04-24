@@ -1,3 +1,5 @@
+import os
+os.environ['KIVY_GL_BACKEND']='gl'
 from kivy.app import App
 from kivy.uix.behaviors.knspace import knspace
 def change_screen_5(*args):
@@ -18,6 +20,7 @@ from kivy.graphics import *
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.clock import Clock
+from kivy.uix.image import AsyncImage
 import matplotlib.pyplot as plt
 from libdw import pyrebase
 import numpy as np
@@ -506,6 +509,10 @@ class loginScreen(Screen):
         self.ids["username"].text = ""
         self.ids["password"].text = ""
 
+        import os, ssl
+        if (not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None)):
+            ssl._create_default_https_context = ssl._create_unverified_context
+
     def login_pressed(self, *args):
         # Login button pressed, check if credentials are correct
         username = self.ids["username"].text
@@ -549,15 +556,15 @@ class menuScreen(Screen):
         titles=list(menudic.keys())
         menudicts=list(menudic.values())
         mgrid=self.ids["grid"]
-        for i in range(1,len(titles)):
+        for i in range(len(titles)):
             title=titles[i]
             print("title is", title)
             menudict=menudicts[i]
             print("menu dictionary is",menudict)
             text=str(title)+"\n"+"Est. waiting time:"+str(menudict["est_waiting_time"])+"\n"+"Price:"+str(menudict["price"])
             #photo=menudict["photo_url"]
-            menu.get_photo('curry_chicken.jpg')
-            w1=Image(source='curry_chicken.jpg')
+            url = menu.get_photo('curry_chicken.jpg')
+            w1=AsyncImage(source=url)
             self.array.append(w1)
             mgrid.add_widget(w1)
             l1=Label(text=text,size_hint_y=None,color=(0,0,0,1))

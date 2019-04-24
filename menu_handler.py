@@ -35,26 +35,28 @@ class menuhandler():
 	def get_menu(self):
 		r_msg={}
 		menu_details = self.db.child('menu').child(self.store).get()
+		print(menu_details.val())
 		for items in menu_details.each():
-			print(items.key(),items.val())
-			r_msg[items.key()]= items.val()
+			if str(items.key()) != "!stall_id":
+				print(items.key(),items.val())
+				r_msg[items.key()]= items.val()
 		return r_msg
 	def get_photo(self, items): #items is filename with directory , with extension
 		# the url is prefixed into  
-		my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}?alt=media".format(self.store,items)
+		store_url = self.store[:-6]
+		my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}?alt=media".format(store_url,items)
 		print(my_url)
-		try:
-			loader = urllib.request.urlretrieve(my_url,items)
+		return my_url
 
-		except urllib.error.URLError as e:
-			message = json.loads(e.read())
-			print(message["error"]["message"])
-		else:
-			print(loader)
+		# try:
 
-db_handler= menuhandler(db, 'Indian')
-db_handler.get_photo('curry_chicken.jpg')
-print(db_handler.get_menu())
+		# 	loader = urllib.request.urlretrieve(my_url,items)
+
+		# except urllib.error.URLError as e:
+		# 	message = json.loads(e.read())
+		# 	print(message["error"]["message"])
+		# else:
+		# 	print(loader)
  #imageblob.upload_from_filename(imagesPath)
 
 #for new item, need dynamic filename, saves it, and uploads that one 
