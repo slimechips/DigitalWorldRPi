@@ -1,6 +1,6 @@
 from libdw import pyrebase
 import datetime
-
+from config import db
 
 class trend_handler:
 	def __init__(self, db,store):
@@ -32,3 +32,10 @@ class trend_handler:
 			price = db.child('menu').child('western_stall').child(items).child('price').get()#the price of the item
 			sale.append([[date_time_obj.year,date_time_obj.month,date_time_obj.day],float(price.val()[1:])])
 		return sale# return 2d array 
+
+#t=trend_handler(db,'chicken_rice_stall')
+#pop=t.get_popular()
+#sales=t.get_sales()
+#print(pop)
+#print("\n")
+#print(sales)

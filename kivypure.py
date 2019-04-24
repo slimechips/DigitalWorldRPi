@@ -4,6 +4,7 @@ def change_screen_5(*args):
     App.get_running_app().root.current = 'screen_5'
 from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
+from kivy.properties import StringProperty
 from kivy.uix.scatter import Scatter
 from kivy.uix.label import Label
 from kivy.uix.floatlayout import FloatLayout
@@ -28,37 +29,6 @@ from config import db
 from Database_handler import OrderHandler
 from menu_handler import menuhandler
 from trendline_handler import trend_handler
-
-
-####This is the database handler
-
-dbhandler= OrderHandler(db,'japanese_stall')
-print(dbhandler.get_all_order())
-
-###
-
-
-#This is the menu handle
-
-
-
-
-#a=menu.get_menu()
-#menu.get_photo("ricc_with_noodle2.jpg")
-
-
-#end of menu handler
-
-
-#trendline handler
-trend=trend_handler(db)
-#sales=trend.get_sales()
-#print(sales)
-#popular=trend.get_popular()
-#print("printing trend")
-#print(popular)
-
-#end of trendlline
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
@@ -338,6 +308,7 @@ Builder.load_string("""
             height: 30
             width: 160
             pos_hint: {"center_x":0.75,"center_y":0.4}
+            
 <menuScreen>:
     name: "menu"
     id: menu_screen
@@ -350,8 +321,6 @@ Builder.load_string("""
             pos: 0,0
             size: self.width,self.height
             
-            
-
     # BoxLayout to contain top and bottom nav bars + contents of the screen
     BoxLayout:
         id: box
@@ -392,9 +361,6 @@ Builder.load_string("""
                 Widget:
                     
                 Widget:
-                    
-                
-        
                     
 <receiveScreen>:
     rect_id: 'rect_id'
@@ -453,7 +419,6 @@ Builder.load_string("""
         Color:
             rgb: 1, 1, 1
         Rectangle:
-            id: rect_id
             source: 'backnew.png'
             pos: 0,0
             size: self.width,self.height
@@ -533,6 +498,7 @@ Builder.load_string("""
                     """)
 
 #s=ScrollView(id='scroll')
+   
 class loginScreen(Screen):
     def on_enter(self, *args):
         super().on_enter(*args)
@@ -557,136 +523,230 @@ class loginScreen(Screen):
             self.ids["password"].background_color = [1, 0.3, 0.3, 1]
 
 class fourScreen(Screen):
+    stall_name=loginhandler.cur_stall_user 
     pass
 class fiveScreen(Screen):
+    stall_name=loginhandler.cur_stall_user 
     pass
 class dashScreen(Screen):
-    def start(self):
-        Clock.schedule_interval(self.change, 10)
+    stall_name=loginhandler.cur_stall_user 
+    #def start(self):
+        #Clock.schedule_interval(self., 10)
         
 class menuScreen(Screen):
-    def start(self):
-        Clock.schedule_interval(self.change, 10)
+    array=[]
+    def on_pre_leave(self,*args):
+        super().on_leave(*args)
+        for i in self.array:
+            self.ids["grid"].remove_widget(i)
+    def change(self,*args):
+        self.parent.current="adjust"
+    def on_enter(self,*args):
+        super().on_enter(*args)
+        stall_name=loginhandler.cur_stall_user 
+        menu= menuhandler(db,stall_name) 
+        menudic=menu.get_menu()
+        titles=list(menudic.keys())
+        menudicts=list(menudic.values())
+        mgrid=self.ids["grid"]
+        for i in range(1,len(titles)):
+            title=titles[i]
+            print("title is", title)
+            menudict=menudicts[i]
+            print("menu dictionary is",menudict)
+            text=str(title)+"\n"+"Est. waiting time:"+str(menudict["est_waiting_time"])+"\n"+"Price:"+str(menudict["price"])
+            #photo=menudict["photo_url"]
+            menu.get_photo('curry_chicken.jpg')
+            w1=Image(source='curry_chicken.jpg')
+            self.array.append(w1)
+            mgrid.add_widget(w1)
+            l1=Label(text=text,size_hint_y=None,color=(0,0,0,1))
+            self.array.append(l1)
+            mgrid.add_widget(l1)
+            screenmake=partial(self.change)
+            but1=Button(size_hint= (None, None),text="Click to Edit",on_press=screenmake,pos_hint= {'x': 0.335})
+            self.array.append(but1)
+            mgrid.add_widget(but1)
+        #self.interval=Clock.schedule_interval(self.on_enter, 10)
+
     def update(self,w):
         self.add_widget(w)
+        
+class Label1(Label):
+    order_id=StringProperty()
+    
+class Button1(Button):
+    order_id=StringProperty()
 
 class receiveScreen(Screen):
-    rect_id= ObjectProperty(None)
+    widgetlist=[]
+    def on_pre_leave(self,*args):
+        super().on_leave(*args)
+        self.interval.cancel()
+    def on_enter(self,*args):
+        super().on_enter(*args)
+        stall_name=loginhandler.cur_stall_user 
+        dbhandler= OrderHandler(db,stall_name)
+        lis=dbhandler.get_all_order()
+        keys1=list(lis.keys())
+        try:
+            for i in range(len((keys1))):
+                g=self.ids["grid"]
+                dic=(lis[keys1[i]])
+                if(self.check(dic)==True):
+                    continue
+                keys2=list(dic.keys())
+                vals2=list(dic.values())
+                text1="Item:"+str(dic["food_item"])+"\n"+"id:"+str(dic["food_id"])+"\n"+"Orders in Queue:"+str(dic["orders_in_queue"])+"\n"+"Special Requests:"+str(dic["special_requests"])
+                text2="Est Waiting Time:"+str(dic["estimated_waiting_time"])+"\n"+"Time of Order:"+str(dic["time_of_order"])+"\n"+"Order Status:"+str(dic["status"])
+                text3="Order ID:"+str(dic["order_id"])
+                w1=Label1(text=text1,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
+                g.add_widget(w1)
+                w2=Label1(text=text2,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
+                g.add_widget(w2)
+                w3=Label1(text=text3,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
+                g.add_widget(w3)
+                but1=Button1(size_hint= (None, None),text="ready",on_press=partial(self.butpres1,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
+                g.add_widget(but1)
+                but2=Button1(size_hint= (None, None),text="cooking",on_press=partial(self.butpres2,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
+                g.add_widget(but2)
+                but3=Button1(size_hint= (None, None),text="collected",on_press=partial(self.butpres3,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
+                g.add_widget(but3)
+                for i in [w1,w2,w3,but1,but2,but3]:
+                    self.widgetlist.append(i)
+        except:
+            print("no orders")               
+        self.interval=Clock.schedule_interval(self.on_enter, 10)
+    def check(self,dic):
+        flag=False
+        for widget in self.widgetlist:
+            if widget.order_id==str(dic["order_id"]):
+                flag=True
+        return flag
+    def butpres1(self,dbhandler,item,but1,*args):
+        dbhandler.update("ready",item)
+        i=self.widgetlist.index(but1)
+        print(i)
+        try:
+            print("replacing")
+            self.widgetlist[i-2].text=self.widgetlist[i-2].text.replace("cooking","ready")
+            print("replaced?")
+            print(self.widgetlist[i-2].text)
+        except:
+            pass
+        try:
+            self.widgetlist[i-2].text=self.widgetlist[i-2].text.replace("collected","ready")
+        except:
+            pass
+        try:
+            self.widgetlist[i-2].text=self.widgetlist[i-2].text.replace("sent","ready")
+        except:
+            pass
+    
+    def butpres2(self,dbhandler,item,but2,*args):
+        dbhandler.update("cooking",item)
+        i=self.widgetlist.index(but2)
+        try:
+            self.widgetlist[i-3].text=self.widgetlist[i-3].text.replace("collected","cooking")
+        except:
+            pass
+        try:
+            self.widgetlist[i-3].text=self.widgetlist[i-3].text.replace("ready","cooking")
+        except:
+            pass
+        try:
+            self.widgetlist[i-3].text=self.widgetlist[i-3].text.replace("sent","cooking")
+        except:
+            pass
+        
+        
+    def butpres3(self,dbhandler,item,but3,*args):
+        dbhandler.update("collected",item)
+        i=self.widgetlist.index(but3)
+        try:
+            self.widgetlist[i-4].text=self.widgetlist[i-4].text.replace("cooking","collected")
+        except:
+            pass
+        try:
+            self.widgetlist[i-4].text=self.widgetlist[i-4].text.replace("ready","collected")
+        except:
+            pass
+        try:
+            self.widgetlist[i-4].text=self.widgetlist[i-4].text.replace("sent","collected")
+        except:
+            pass
+
+    
+    def start(self):
+        Clock.schedule_interval(self.on_enter, 10)
     def update(self,w):
         self.add_widget(w)
         (self.rect_id)
 
 class adjustScreen(Screen):
-    def takeread(self,menuhandler,sm,*args):
+    
+    def on_leave(self,*args):
+        super().on_leave(*args)
+        self.interval.cancel()
+    def on_enter(self,*args):
+        super().on_enter(*args)
+        stall_name=loginhandler.cur_stall_user
+        self.menu= menuhandler(db,stall_name)
+        realtakeread=partial(self.takeread,self.menu,sm)
+        self.ids["float"].add_widget(Button(text="Enter details",size_hint=(None,None),height=30,width=120,pos_hint={"center_x":0.5, "center_y":0.30},on_press=realtakeread))
+        self.interval=Clock.schedule_interval(self.on_enter, 10)
+    def takeread(self,sm,*args):
         name=self.ids["name"].text
-        food_id=self.ids["food_id"].text
+        food_id=int(self.ids["food_id"].text)
         price=self.ids["price"].text
         wait_time=self.ids["wait_time"].text
         dic={"est_waiting_time":wait_time,"food_id":food_id,"price":price}
-        menuhandler.update_detail(name,"est_waiting_time",wait_time)
-        menuhandler.update_detail(name,"food_id",food_id)
-        menuhandler.update_detail(name,"price",price)
+        self.menu.update_detail(name,"est_waiting_time",wait_time)
+        self.menu.update_detail(name,"food_id",food_id)
+        self.menu.update_detail(name,"price",price)
         sm.current="menu"
+        
 sm=ScreenManager()
 sm.add_widget(loginScreen())
 sm.add_widget(fourScreen())
 sm.add_widget(fiveScreen())
 sm.add_widget(dashScreen())
+sm.add_widget((receiveScreen()))
+#Get the stall name from the username entered
 
+#Declare order, menu and trend handlers
 
-#b=BoxLayout()
+#trend = trend_handler(db,stall_name)  
 
-#a.ids[]
-
-#add labels for each order
-l1=Label(text="First piece of text")
-l1.bind(size=l1.setter("texture_size"))
-#l2=Label(text="Second Piece of text")
-
+#Declare the order screen to be modified using results from order handler
+"""
 a=receiveScreen()
 b=a.ids["box"]
 s=a.ids["scroll"]
 g=a.ids["grid"]
-#s=ScrollView(id='scroll',do_scrollable_y= True)
-#,size_hint_y=None
-#commented out this property: ,height=GridLayout().minimum_height
-#but=Button(size_hint=(0.14,0.15),pos_hint={"center_y":0.5, "right":0.17},on_press=change_screen_5)
-#g.add_widget(Image(source="button11.png",keep_ratio=False,center_x=but.center_x,center_y=but.center_y,size=but.size))
-#g.add_widget(but)
-#g.add_widget(l2)
-
+"""
 #Backend for Orders
 
-lis=dbhandler.get_all_order()
-keys1=list(lis.keys())
-for i in range(1,len(list(keys1))):
-    dic=lis[keys1[i]]
-    keys2=list(dic.keys())
-    vals2=list(dic.values())
-    text1="Item:"+str(dic["food_item"])+"\n"+"id:"+str(dic["food_id"])+"\n"+"Orders in Queue:"+str(dic["orders_in_queue"])+"\n"+"Special Requests:"+str(dic["special_requests"])
-    text2="Est Waiting Time:"+str(dic["estimated_waiting_time"])+"\n"+"Time of Order:"+str(dic["time_of_order"])+"\n"+"Order Status:"+str(dic["status"])
-    text3="Order ID:"+str(dic["order_id"])
-    g.add_widget(Label(text=text1,size_hint_y=None,color=(0,0,0,1)))
-    g.add_widget(Label(text=text2,size_hint_y=None,color=(0,0,0,1)))
-    g.add_widget(Label(text=text3,size_hint_y=None,color=(0,0,0,1)))
-    readyfn=partial(dbhandler.update,"ready",keys1[i])
-    cookingfn=partial(dbhandler.update,"cooking",keys1[i])
-    collectedfn=partial(dbhandler.update,"collected",keys1[i])
-    but1=Button(size_hint= (None, None),text="ready",on_press=readyfn,pos_hint= {'x': 0.335})
-    g.add_widget(but1)
-    but2=Button(size_hint= (None, None),text="cooking",on_press=cookingfn,pos_hint= {'x': 0.335})
-    g.add_widget(but2)
-    but3=Button(size_hint= (None, None),text="collected",on_press=collectedfn,pos_hint= {'x': 0.335})
-    g.add_widget(but3)
+
 
 #end of orders
+"""
 menuscreen=menuScreen()
 mbox=menuscreen.ids["box"]
 mscroll=menuscreen.ids["scroll"]
-mgrid=menuscreen.ids["grid"]
+"""
 #Menu handler
-
-detail={                            # to be set by menu maker
-	'EST_waiting_time':10,
-    'key':7,
-	'price':5.50
-}
-foodname="Chicken with Rice"       #also set by menu maker
 #imagepath='ricc_with_noodle2.jpg'
-menu= menuhandler(db,'chicken_rice_stall')  
+
 #menu.new_item(imagepath,foodname,detail ) 
-menudic=menu.get_menu()
-titles=list(menudic.keys())
-menudicts=list(menudic.values())
+
 #to loop
 
 ad=adjustScreen()
-realtakeread=partial(ad.takeread,menu,sm)
-ad.ids["float"].add_widget(Button(text="Enter details",size_hint=(None,None),height=30,width=120,pos_hint={"center_x":0.5, "center_y":0.30},on_press=realtakeread))
-
-def change(*args):
-    sm.current="adjust"
-
-for i in range(1,len(titles)):
-    title=titles[i]
-    print("title is", title)
-    menudict=menudicts[i]
-    print("menu dictionary is",menudict)
-    text=str(title)+"\n"+"Est. waiting time:"+str(menudict["est_waiting_time"])+"\n"+"Price:"+str(menudict["price"])
-    #photo=menudict["photo_url"]
-    w1=Button(background_color=(0,0,0,0))
-    mgrid.add_widget(w1)
-    mgrid.add_widget(Label(text=text,size_hint_y=None,color=(0,0,0,1)))
-    screenmake=partial(change)
-    but1=Button(size_hint= (None, None),text="Click to Edit",on_press=screenmake,pos_hint= {'x': 0.335})
-    mgrid.add_widget(but1)
-
-sm.add_widget(menuscreen)
+sm.add_widget(menuScreen())
 sm.add_widget(ad)
-sm.add_widget(a)
 
 class TutorialApp(App):
-    
     def build(self):
         return sm
 a=TutorialApp()
