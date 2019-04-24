@@ -1,19 +1,18 @@
-from config import config
-from libdw import pyrebase
+from config import db
 
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
+cur_stall_user = None
 
 def check_credentials(username, password):
     # Check user credentials
     user_valid = check_username(username)
     if user_valid:
         pw_valid = check_password(username, password)
-    return user_valid, pw_valid
+    return user_valid and pw_valid
 
 def check_username(username):
     # Checks if username exists
-    db_username = db.child("stall_users").child(username)
+    db_username = db.child("stall_users").child(username).get().val()
+    print("useraname", db_username)
     if db_username != None:
         return True
     else:
@@ -21,7 +20,8 @@ def check_username(username):
 
 def check_password(username, password):
     # Checks if password entered is correct
-    db_pw = db.child("stall_users").child(username).child("password")
+    db_pw = db.child("stall_users").child(username).child("password").get().val()
+    print("pw", db_pw)
     if password == db_pw:
         return True
     else:

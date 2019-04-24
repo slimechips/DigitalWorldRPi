@@ -1,18 +1,6 @@
 from libdw import pyrebase
 import datetime
- 
-
-
-url = "https://digitalworldf08g2.firebaseio.com/"
-apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
-
-config = {
-    "apiKey": apikey,
-    "databaseURL": url,
-}
-
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
+from config import db
 
 class trend_handler:
 	def __init__(self, db):
