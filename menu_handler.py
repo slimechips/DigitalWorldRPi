@@ -23,8 +23,9 @@ class menuhandler():
 	    my_file = open(filename, "rb") # read the files 
 	    my_bytes = my_file.read()
 	    my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}".format(self.store,filename)
+	    # header content 
 	    my_headers = {"Content-Type": "image/jpg"}
-
+	    # The request to push the images up
 	    my_request = urllib.request.Request(my_url, data=my_bytes, headers=my_headers, method="POST")
 
 	    try:
@@ -35,6 +36,7 @@ class menuhandler():
 	    else:
 	        print(loader.read())
 	def get_menu(self):
+		# get the details of the menu 
 		r_msg={}
 		menu_details = self.db.child('menu').child(self.store).get()
 		if menu_details ==None:
