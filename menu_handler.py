@@ -49,14 +49,7 @@ class menuhandler():
 		else:
 			print(loader)
 
-detail={                            # to be set by menu maker
-	'EST_waiting_time':10,
-	'price':5.50
-}
-foodname="Chicken with Rice"       #also set by menu maker
-menu= menuhandler(db,'Indian')  
 
-menu.update_detail('Chicken with Rice', 'price','40')
 
 #imageblob.upload_from_filename(imagesPath)
 
