@@ -4,8 +4,9 @@ import signal
 import subprocess
 
 def photo(filename):
-    proc = subprocess.Popen("sudo fswebcam -r /dev/video0 "+filename +" -l 1",
+     print("Taking photo")
+     proc = subprocess.Popen("sudo fswebcam -r /dev/video0 "+filename,
      shell=True, 
      preexec_fn=os.setsid) 
-    time.sleep(5)
-    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+     time.sleep(5)
+     os.killpg(os.getpgid(proc.pid), signal.SIGTERM)

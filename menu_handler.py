@@ -35,13 +35,18 @@ class menuhandler():
 	        print(loader.read())
 
 	def upload_photo(self, filename, callback):
+		print("uploading photo")
 		my_file = open(filename, "rb")
 		my_bytes = my_file.read()
-		my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}".format(self.store,filename)
+		my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}".format(self.store[:-6],filename)
 		my_headers = {"Content-Type": "image/jpg"}
 
-		UrlRequest(my_url, req_body=my_bytes, req_headers=my_headers, method="POST", verify=False, on_success=callback)
+		UrlRequest(my_url, req_body=my_bytes, req_headers=my_headers, method="POST", verify=False, on_success=callback,
+				   on_error=self.got_error)
 		return my_url
+
+	def got_error(self):
+		print("Failed to upload photo")
 
 	def get_menu(self):
 		r_msg={}

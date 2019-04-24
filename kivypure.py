@@ -761,22 +761,27 @@ class adjustScreen(Screen):
         price=self.ids["price"].text
         wait_time=self.ids["wait_time"].text
         dic={"est_waiting_time":wait_time,"food_id":food_id,"price":price}
-        self.menu.update_detail(name,"est_waiting_time",wait_time)
-        self.menu.update_detail(name,"food_id",food_id)
+        self.menu.update_detail(name,"est_waiting_time",int(wait_time))
+        self.menu.update_detail(name,"food_id",int(food_id))
         self.menu.update_detail(name,"price",price)
-        self.menu.update_detail(name, "stall_id", loginhandler.cur_stall_id)
+        self.menu.update_detail(name, "stall_id", int(loginhandler.cur_stall_id))
+        self.urlPath = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
+        self.menu.update_detail(name, "photo_url", "None")
+        print("trying")
         self.take_photo(name)
 
+
     def take_photo(self, name):
-        name += ".jpg"
-        camera.photo(name)
+        print("name", name)
+        camera.photo(name + ".jpg")
         stall_name=loginhandler.cur_stall_user 
         menu= menuhandler(db,stall_name)
-        self.urlPath = menu.upload_photo(name, self.photo_uploaded)
+        self.urlPath = menu.upload_photo(name + ".jpg", self.photo_uploaded)
         self.name = name
 
     def photo_uploaded(self, req, res, *args):
-        self.menu.update_detail(self.name,"photo_url", self.urlPath)
+        print("Photo Upload success!")
+        self.menu.update_detail(self.name,"photo_url", self.urlPath + "?alt=media")
         sm.current="menu"
 
         
