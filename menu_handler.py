@@ -3,6 +3,7 @@ import urllib
 from PIL import Image 
 from config import db
 import json
+from kivy.network.urlrequest import UrlRequest
 
 class menuhandler():
 	def __init__ (self,db,store):
@@ -32,6 +33,16 @@ class menuhandler():
 	        print(message["error"]["message"])
 	    else:
 	        print(loader.read())
+
+	def upload_photo(self, filename, callback):
+		my_file = open(filename, "rb")
+		my_bytes = my_file.read()
+		my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}".format(self.store,filename)
+		my_headers = {"Content-Type": "image/jpg"}
+
+		UrlRequest(my_url, req_body=my_bytes, req_headers=my_headers, method="POST", verify=False, on_success=callback)
+		return my_url
+
 	def get_menu(self):
 		r_msg={}
 		menu_details = self.db.child('menu').child(self.store).get()

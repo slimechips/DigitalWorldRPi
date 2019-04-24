@@ -1,7 +1,7 @@
 import os
 import time
 from kivy.uix.textinput import TextInput
-#os.environ['KIVY_GL_BACKEND']='gl'
+os.environ['KIVY_GL_BACKEND']='gl'
 from kivy.app import App
 from kivy.uix.behaviors.knspace import knspace
 def change_screen_5(*args):
@@ -31,9 +31,10 @@ from functools import partial
 import loginhandler
 #from PIL import Image2 
 from config import db
+import camera
 
 from Database_handler import OrderHandler
-from menu_handler2 import menuhandler
+from menu_handler import menuhandler
 from trendline_handler import trend_handler
 
 fig = plt.figure()
@@ -559,12 +560,13 @@ class loginScreen(Screen):
         # Login button pressed, check if credentials are correct
         username = self.ids["username"].text
         password = self.ids["password"].text
-        cred_correct = loginhandler.check_credentials(username, password)
-        if cred_correct:
+        cred_correct, stall_id = loginhandler.check_credentials(username, password)
+        if cred_correct and stall_id != None:
             # Credentials correct, set current user and change screen
             self.ids["username"].background_color = [1, 1, 1, 1]
             self.ids["password"].background_color = [1, 1, 1, 1]
             loginhandler.cur_stall_user = username
+            loginhandler.cur_stall_id = stall_id
             self.manager.current = "screen_5"
         else:
             # Credentials wrong, set text fields to red
@@ -605,7 +607,7 @@ class menuScreen(Screen):
             print("menu dictionary is",menudict)
             text=str(title)+"\n"+"Est. waiting time:"+str(menudict["est_waiting_time"])+"\n"+"Price:"+str(menudict["price"])
             #photo=menudict["photo_url"]
-            url = menu.get_photo('curry_chicken.jpg')
+            url = menudict["photo_url"]
             w1=AsyncImage(source=url)
             self.array.append(w1)
             mgrid.add_widget(w1)
@@ -762,7 +764,22 @@ class adjustScreen(Screen):
         self.menu.update_detail(name,"est_waiting_time",wait_time)
         self.menu.update_detail(name,"food_id",food_id)
         self.menu.update_detail(name,"price",price)
+        self.menu.update_detail(name, "stall_id", loginhandler.cur_stall_id)
+        self.take_photo(name)
+
+    def take_photo(self, name):
+        name += ".jpg"
+        camera.photo(name)
+        stall_name=loginhandler.cur_stall_user 
+        menu= menuhandler(db,stall_name)
+        self.urlPath = menu.upload_photo(name, self.photo_uploaded)
+        self.name = name
+
+    def photo_uploaded(self, req, res, *args):
+        self.menu.update_detail(self.name,"photo_url", self.urlPath)
         sm.current="menu"
+
+        
         
 class barcodeScreen(Screen):
     
