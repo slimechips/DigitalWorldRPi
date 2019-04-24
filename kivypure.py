@@ -1,10 +1,13 @@
 import os
-os.environ['KIVY_GL_BACKEND']='gl'
+import time
+from kivy.uix.textinput import TextInput
+#os.environ['KIVY_GL_BACKEND']='gl'
 from kivy.app import App
 from kivy.uix.behaviors.knspace import knspace
 def change_screen_5(*args):
     App.get_running_app().root.current = 'screen_5'
 from kivy.uix.button import Button
+from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
 from kivy.properties import StringProperty
 from kivy.uix.scatter import Scatter
@@ -30,7 +33,7 @@ import loginhandler
 from config import db
 
 from Database_handler import OrderHandler
-from menu_handler import menuhandler
+from menu_handler2 import menuhandler
 from trendline_handler import trend_handler
 
 fig = plt.figure()
@@ -496,8 +499,47 @@ Builder.load_string("""
             height: 30
             width: 160
             pos_hint: {"center_x":0.5,"center_y":0.35}
-        
-    
+<barcodeScreen>:
+    name: 'barcode'
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'backnew.png'
+            pos: 0,0
+            size: self.width,self.height
+    FloatLayout:
+        id:float
+        Button:
+            size_hint: 0.14,0.15
+            pos_hint: {"center_y":0.5, "right":0.17}
+            on_press: app.root.current = "login"
+            Image:
+                source: "button11.png"
+                keep_ratio: False
+                center_x: self.parent.center_x-1
+                center_y: self.parent.center_y
+                size: self.parent.size
+                allow_stretch: True
+        Label:
+            size_hint: None, None
+            text:"Scan Barcode to confirm the order"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.7}
+        Label:
+            id:lab1
+            size_hint: None, None
+            text:"Barcode not scanned yet"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.5}
                     """)
 
 #s=ScrollView(id='scroll')
@@ -587,6 +629,9 @@ class Button1(Button):
 
 class receiveScreen(Screen):
     widgetlist=[]
+    def change(self,*args):
+        self.parent.current="barcode"
+        
     def on_pre_leave(self,*args):
         super().on_leave(*args)
         self.interval.cancel()
@@ -596,33 +641,39 @@ class receiveScreen(Screen):
         dbhandler= OrderHandler(db,stall_name)
         lis=dbhandler.get_all_order()
         keys1=list(lis.keys())
-        try:
-            for i in range(len((keys1))):
-                g=self.ids["grid"]
-                dic=(lis[keys1[i]])
-                if(self.check(dic)==True):
-                    continue
-                keys2=list(dic.keys())
-                vals2=list(dic.values())
-                text1="Item:"+str(dic["food_item"])+"\n"+"id:"+str(dic["food_id"])+"\n"+"Orders in Queue:"+str(dic["orders_in_queue"])+"\n"+"Special Requests:"+str(dic["special_requests"])
-                text2="Est Waiting Time:"+str(dic["estimated_waiting_time"])+"\n"+"Time of Order:"+str(dic["time_of_order"])+"\n"+"Order Status:"+str(dic["status"])
-                text3="Order ID:"+str(dic["order_id"])
-                w1=Label1(text=text1,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
-                g.add_widget(w1)
-                w2=Label1(text=text2,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
-                g.add_widget(w2)
-                w3=Label1(text=text3,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
-                g.add_widget(w3)
-                but1=Button1(size_hint= (None, None),text="ready",on_press=partial(self.butpres1,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
-                g.add_widget(but1)
-                but2=Button1(size_hint= (None, None),text="cooking",on_press=partial(self.butpres2,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
-                g.add_widget(but2)
-                but3=Button1(size_hint= (None, None),text="collected",on_press=partial(self.butpres3,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
-                g.add_widget(but3)
-                for i in [w1,w2,w3,but1,but2,but3]:
-                    self.widgetlist.append(i)
-        except:
-            print("no orders")               
+        
+        for i in range(len((keys1))):
+            g=self.ids["grid"]
+            dic=(lis[keys1[i]])
+            if(self.check(dic)==True):
+                continue
+            keys2=list(dic.keys())
+            vals2=list(dic.values())
+            text1="Item:"+str(dic["food_item"])+"\n"+"id:"+str(dic["food_id"])+"\n"+"Orders in Queue:"+str(dic["orders_in_queue"])+"\n"+"Special Requests:"+str(dic["special_requests"])
+            text2="Est Waiting Time:"+str(dic["estimated_waiting_time"])+"\n"+"Time of Order:"+str(dic["time_of_order"])+"\n"+"Order Status:"+str(dic["status"])
+            text3="Order ID:"+str(dic["order_id"])
+            w1=Label1(text=text1,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
+            g.add_widget(w1)
+            w2=Label1(text=text2,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
+            g.add_widget(w2)
+            w3=Label1(text=text3,size_hint_y=None,color=(0,0,0,1),order_id=str(dic["order_id"]))
+            g.add_widget(w3)
+            but1=Button1(size_hint= (None, None),text="ready",on_press=partial(self.butpres1,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
+            g.add_widget(but1)
+            but2=Button1(size_hint= (None, None),text="cooking",on_press=partial(self.butpres2,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
+            g.add_widget(but2)
+            but3=Button1(size_hint= (None, None),text="collected",on_press=partial(self.butpres3,dbhandler,keys1[i]),pos_hint= {'x': 0.335},order_id=str(dic["order_id"]))
+            g.add_widget(but3)
+            empt=Widget(size_hint= (None, None))
+            g.add_widget(empt)
+            butmid=Button(size_hint=(None,None),id=keys1[i],text="Click to Scan Barcode",on_press=self.change)
+            g.add_widget(butmid)
+            empt1=Widget(size_hint= (None, None))
+            g.add_widget(empt1)
+            for i in [w1,w2,w3,but1,but2,but3]:
+                self.widgetlist.append(i)
+        
+            #print("no orders")               
         self.interval=Clock.schedule_interval(self.on_enter, 10)
     def check(self,dic):
         flag=False
@@ -713,6 +764,46 @@ class adjustScreen(Screen):
         self.menu.update_detail(name,"price",price)
         sm.current="menu"
         
+class barcodeScreen(Screen):
+    
+    def on_enter(self,*args):
+        super().on_enter(*args)
+        l=TextInput(on_text_validate=self.check_a, multiline=False,font_size=20)
+        self.add_widget(l)
+        self.leave = Clock.schedule_once(self.change_screen,15)
+    def on_leave(self, *args):
+        super().on_leave(*args)
+        try:
+            self.leave.cancel()
+        except:
+            pass
+        
+    def change_screen(self,*args):
+        self.manager.current=self.manager.previous()
+    def check_a(self,instance,*args):
+        self.a=instance.text
+        print(self.a)
+        stall_name=loginhandler.cur_stall_user 
+        dbhandler= OrderHandler(db,stall_name)
+        lis=dbhandler.get_all_order()
+        keys1=list(lis.keys())
+        self.a=str(self.a)[:-1]
+        flag=False
+        for i in keys1:
+            if i==self.a:
+                instance.text="Correct Barcode!"
+                flag=True
+                break
+        if(flag==False):
+            instance.text="Wrong Barcode!"
+        self.leave.cancel()
+        Clock.schedule_once(self.change_screen,5)
+        
+            
+        
+        
+        
+    
 sm=ScreenManager()
 sm.add_widget(loginScreen())
 sm.add_widget(fourScreen())
@@ -748,7 +839,8 @@ mscroll=menuscreen.ids["scroll"]
 #menu.new_item(imagepath,foodname,detail ) 
 
 #to loop
-
+b=barcodeScreen()
+sm.add_widget(b)
 ad=adjustScreen()
 sm.add_widget(menuScreen())
 sm.add_widget(ad)
