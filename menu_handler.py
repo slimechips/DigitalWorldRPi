@@ -1,19 +1,6 @@
 from libdw import pyrebase
 import urllib
 from PIL import Image 
-
-
-url = "https://digitalworldf08g2.firebaseio.com/"
-apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
-
-config = {
-    "apiKey": apikey,
-    "databaseURL": url,
-}
-
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-
 class menuhandler():
 	def __init__ (self,db,store):
 		self.db=db
@@ -49,7 +36,8 @@ class menuhandler():
 			print(items.key(),items.val())
 			r_msg[items.key()]= items.val()
 		return r_msg
-	def get_photo(self, items): #items is filename
+	def get_photo(self, items): #items is filename with directory , with extension
+		# the url is prefixed into  
 		my_url = "https://firebasestorage.googleapis.com/v0/b/digitalworldf08g2.appspot.com/o/{}%2F{}?alt=media".format(self.store,items)
 		print(my_url)
 		try:
@@ -67,11 +55,8 @@ detail={                            # to be set by menu maker
 }
 foodname="Chicken with Rice"       #also set by menu maker
 menu= menuhandler(db,'Indian')  
-menu.new_item('ricc_with_noodle2.jpg',foodname,detail ) 
-print("about to give menu")
-a=menu.get_menu()
-print(a)
-menu.get_photo("ricc_with_noodle2.jpg")
+
+menu.update_detail('Chicken with Rice', 'price','40')
 
 #imageblob.upload_from_filename(imagesPath)
 
