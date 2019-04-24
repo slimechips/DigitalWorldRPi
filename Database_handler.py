@@ -2,19 +2,6 @@ from libdw import pyrebase
 import datetime
 import json 
 
-url = "https://digitalworldf08g2.firebaseio.com/"
-apikey = "AIzaSyDHyug6TDWAda_ZirZ1G7B9cFV525ahvyk"
-
-config = {
-    "apiKey": apikey,
-    "databaseURL": url,
-}
-
-
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-
-x=db.child('active_orders').child('western_stall').child('order_000001').get()
 
     
 class OrderHandler():
@@ -25,12 +12,10 @@ class OrderHandler():
     def update(self, status,order_number):
         completed={}
         if status=='ready':
-            self.db.child('active_orders').child(self.store).child('order_000001').update({"status":status})
-            self.db.child('active_orders').child(self.store).child('order_000001').update({"time_of_order_completion":self.time_stamp()}) 
+            self.db.child('active_orders').child(self.store).child(order_number).set({"status":status})
+            self.db.child('active_orders').child(self.store).child(order_number).set({"time_of_order_completion":self.time_stamp()}) 
         elif status=='cooking':
             self.db.child('active_orders').child(self.store).child(order_number).update({"status":status})
-            self.db.child('active_orders').child(self.store).child(order_number).update({"time_of_order_completion":self.time_stamp()}) 
-
         elif status=='collected':
             self.active=self.db.child('active_orders').child(self.store_name).child(order_number).get()
             self.complete=self.db.child('completed_orders').child(self.store_name).child(order_number)
@@ -50,7 +35,8 @@ class OrderHandler():
         self.orders={}
         stores=self.db.child('active_orders').child(self.store).get()
         for entry in stores.each():
-            self.orders[entry.key()]= entry.val()
+            if entry.key()[0] !='!':
+                self.orders[entry.key()]= entry.val()
             print(type(entry.val()))
         return self.orders
 
