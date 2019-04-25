@@ -1,0 +1,492 @@
+#:import Window kivy.core.window.Window
+<loginScreen>:
+    id: login_screen
+    name: 'login'
+    canvas:
+        
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'login.jpg'
+            pos: 0,0
+            size: self.width,self.height
+    FloatLayout:    
+        TextInput:
+            id: username
+            size_hint: None, None
+            text:""
+            hint_text: 'Enter Username'
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.5}
+        TextInput:
+            id: password
+            size_hint: None, None
+            text:""
+            hint_text: "Enter Password"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            password: True
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.45}
+        Button:
+            text: "Enter details"
+            size_hint: None, None
+            height: 30
+            width: 120
+            on_press: login_screen.login_pressed()
+            pos_hint: {"center_x":0.5, "center_y":0.35}
+
+<fourScreen>:               
+    name: 'signup'
+    canvas:     
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'login.jpg'
+            pos: 0,0
+            size: self.width,self.height
+    FloatLayout:  
+        Button:
+            size_hint: 0.14,0.15
+            pos_hint: {"center_y":0.5, "right":0.17}
+            on_press: app.root.current = "login"
+            Image:
+                source: "button11.png"
+                keep_ratio: False
+                center_x: self.parent.center_x
+                center_y: self.parent.center_y
+                size: self.parent.size
+                allow_stretch: True
+        
+        TextInput:
+            size_hint: None, None
+            text:"Enter registration email"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.5}
+        TextInput:
+            size_hint: None, None
+            text:"Enter password"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.45}
+        TextInput:
+            size_hint: None, None
+            text:"Re-enter password"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.4}
+        Button:
+            text: "Confirm details"
+            size_hint: None, None
+            height: 30
+            width: 120
+            on_press: app.root.current = "screen_5" 
+            pos_hint: {"center_x":0.5, "center_y":0.35}
+<fiveScreen>:
+    name: 'screen_5'
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'backnew.png'
+            pos: 0,0
+            size: self.width,self.height
+    FloatLayout:
+        Button:
+            size_hint: 0.14,0.15
+            pos_hint: {"center_y":0.5, "right":0.17}
+            on_press: app.root.current = "login"
+            Image:
+                source: "button11.png"
+                keep_ratio: False
+                center_x: self.parent.center_x-1
+                center_y: self.parent.center_y
+                size: self.parent.size
+                allow_stretch: True
+
+        Label:
+            text: "Options"
+        Button:
+            size_hint: 0.2,0.6
+            pos_hint: {"right":0.35,"center_y":0.5}
+            text: "graphs"
+            on_press: app.root.current = "menu"
+            #size: self.parent.width/3,self.parent.height
+            Image:
+                source: "menu.png"
+                center_x: self.parent.center_x
+                center_y: self.parent.center_y
+                #size_hint: self.parent.size_hint
+                keep_ratio: False
+                size: self.parent.size
+                allow_stretch: True
+        Button:
+            size_hint: 0.2,0.6
+            pos_hint: {"center_y":0.5, "center_x":0.5}
+            text: "to screen 2"
+            on_press: app.root.current = "dash"
+            #size: self.parent.width/3,self.parent.height
+            Image:
+                source: "graph2.png"
+                center_x: self.parent.center_x
+                center_y: self.parent.center_y
+                #size_hint: self.parent.size_hint
+                keep_ratio: False
+                size: self.parent.size
+                allow_stretch: True
+        Button:
+            size_hint: 0.2,0.6
+            pos_hint: {"center_y":0.5, "right":0.85}
+            text: "to screen 2"
+            on_press: app.root.current = "receive"
+            #size: self.parent.width/3,self.parent.height
+            Image:
+                source: "order.png"
+                center_x: self.parent.center_x
+                center_y: self.parent.center_y
+                #size_hint: self.parent.size_hint
+                keep_ratio: False
+                size: self.parent.size
+                allow_stretch: True
+<dashScreen>:             
+    name: 'dash'
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'dash_clear.png'
+            pos: 0,0
+            size: self.width,self.height
+    
+    FloatLayout:
+        Button:
+            background_color: 0, 0, 0, 0
+            size_hint: 0.14,0.2
+            pos_hint: {"center_y":0.468, "right":0.16}
+            on_press: app.root.current = "screen_5"
+            Image:
+                source: "dashbutton1.png"
+                keep_ratio: False
+                center_x: self.parent.center_x
+                center_y: self.parent.center_y
+                size: self.parent.size
+                allow_stretch: True 
+        Label:
+            size_hint: None, None
+            text:"Top Selling Dishes"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.25,"center_y":0.87}
+        
+        Label:
+            id:top3
+            size_hint: None, None
+            text:""
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.25,"center_y":0.77}
+        Label:
+            size_hint: None, None
+            text:"Total Sales Performance per Item"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.75,"center_y":0.87}
+        Image:
+            source: "foo.png"
+            pos_hint: {"center_x":0.66,"center_y":0.65}
+            size_hint: (.4,.4)
+            
+        Label:
+            size_hint: None, None
+            text:"Total Sales Past Month"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.25,"center_y":0.37}
+        Label:
+            id:avg
+            size_hint: None, None
+            text:""
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.25,"center_y":0.25}
+        
+        Image:
+            source: "pie.png"
+            pos_hint: {"center_x":0.72,"center_y":0.25}
+            size_hint: (.25,.4)
+        Label:
+            size_hint: None, None
+            text:"Sales Distribution(frequency)"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.75,"center_y":0.4}
+            
+<menuScreen>:
+    name: "menu"
+    id: menu_screen
+    #current_stall: self.manager.current_stall
+    canvas.before:
+        
+        Rectangle:
+            id: rect_id
+            source: 'backnew.png'
+            pos: 0,0
+            size: self.width,self.height
+            
+    # BoxLayout to contain top and bottom nav bars + contents of the screen
+    BoxLayout:
+        id: box
+        orientation: "vertical"
+        
+        ScrollView:
+            id: scroll
+            size: self.size
+            do_scroll_y: True
+            
+            # GridLayout to contain picture and label of food item
+            GridLayout:
+                id: grid
+                cols: 3
+                column_default_force: True
+                column_default_width: Window.width/2
+                height: self.minimum_height
+                spacing: 80
+                padding: 20
+                size_hint_y: None
+                
+                Button:
+                    id:but
+                    size_hint: 0.33,None
+                    
+                    pos_hint: {'x': 0.35}
+                    #pos_hint: {"center_y":0.5, "right":0.14}
+                    on_press: app.root.current = "screen_5"
+                    Image:
+                        x: self.parent.x
+                        y: self.parent.y
+                        source: "button11.png"
+                        keep_ratio: False
+                        pos:self.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        
+                Widget:
+                    
+                Widget:
+                    
+<receiveScreen>:
+    rect_id: 'rect_id'
+    name: 'receive'
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            id: rect_id
+            source: 'backnew.png'
+            pos: 0,0
+            size: self.width,self.height
+   
+    BoxLayout:
+        id:box
+        orientation: "vertical"
+        
+        ScrollView:
+            id:scroll
+            size: self.size
+            do_scroll_y: True
+            
+            # GridLayout to contain picture and label of food item
+            GridLayout:
+                id: grid
+                cols: 3
+                column_default_force: True
+                column_default_width: Window.width/2
+                height: self.minimum_height
+                spacing: 20
+                padding: 20
+                size_hint_y: None
+                
+                Button:
+                    id:but
+                    size_hint: 0.33,None
+                    
+                    pos_hint: {'x': 0.35}
+                    #pos_hint: {"center_y":0.5, "right":0.14}
+                    on_press: app.root.current = "screen_5"
+                    Image:
+                        x: self.parent.x
+                        y: self.parent.y
+                        source: "button11.png"
+                        keep_ratio: False
+                        pos:self.pos
+                        size: self.parent.size
+                        allow_stretch: True
+                        
+                Widget:
+                    
+                Widget:
+<adjustScreen>:
+    name: 'adjust'
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'backnew.png'
+            pos: 0,0
+            size: self.width,self.height
+    FloatLayout:
+        id:float
+        Button:
+            id:but
+            size_hint: 0.33,None
+            
+            pos_hint: {'center_x':0.2,'center_y':0.8}
+            #pos_hint: {"center_y":0.5, "right":0.14}
+            on_press: app.root.current = "menu"
+            Image:
+                x: self.parent.x
+                y: self.parent.y
+                source: "button11.png"
+                keep_ratio: False
+                pos:self.pos
+                size: self.parent.size
+                allow_stretch: True
+                        
+        Widget:
+            
+        Widget:
+            
+        TextInput:
+            id:name
+            size_hint: None, None
+            text:""
+            hint_text: 'Enter Itemname'
+            write_tab: False
+            multiline: False
+
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.5}
+        TextInput:
+            id:food_id
+            size_hint: None, None
+            text:""
+            hint_text: "Enter food_id"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.45}
+        TextInput:
+            id:price
+            size_hint: None, None
+            text:""
+            hint_text: "Enter price"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.4}
+        
+        TextInput:
+            id:wait_time
+            size_hint: None, None
+            text:""
+            hint_text: "Enter estimated wait time"
+            #on_enter: app.root.current = "main_screen"
+            write_tab: False
+            multiline: False
+            #on_text_validate: app.root.current = "main_screen" 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.35}
+<barcodeScreen>:
+    name: 'barcode'
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'backnew.png'
+            pos: 0,0
+            size: self.width,self.height
+    FloatLayout:
+        id:float
+        Button:
+            size_hint: 0.14,0.15
+            pos_hint: {"center_y":0.5, "right":0.17}
+            on_press: app.root.current = "login"
+            Image:
+                source: "button11.png"
+                keep_ratio: False
+                center_x: self.parent.center_x-1
+                center_y: self.parent.center_y
+                size: self.parent.size
+                allow_stretch: True
+        Label:
+            size_hint: None, None
+            text:"Scan Barcode to confirm the order"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False 
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.7}
+        Label:
+            id:lab1
+            size_hint: None, None
+            text:"Barcode not scanned yet"
+            color: 0,0,0,1
+            write_tab: False
+            multiline: False
+            height: 30
+            width: 160
+            pos_hint: {"center_x":0.5,"center_y":0.5}
